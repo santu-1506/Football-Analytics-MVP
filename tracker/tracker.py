@@ -52,38 +52,32 @@ class Tracker:
         detections = self.detect_frames(frames)
 
         tracks = {
-            'players': [{} for _ in frames],
+            'players':  [{} for _ in frames],
             'referees': [{} for _ in frames],
-            'ball': [{} for _ in frames],
+            'ball':     [{} for _ in frames],
         }
 
         for frame_num, detection in enumerate(detections):
-            cls_names = detection.names
+            cls_names     = detection.names
             cls_names_inv = {v: k for k, v in cls_names.items()}
 
-            detection_sv = sv.Detections.from_ultralytics(detection)
-
-            # Convert goalkeeper → player
-            for obj_ind, class_id in enumerate(detection_sv.class_id):
-                if cls_names[class_id] == 'goalkeeper':
-                    detection_sv.class_id[obj_ind] = cls_names_inv['player']
-
+            detection_sv          = sv.Detections.from_ultralytics(detection)
             detection_with_tracks = self.tracker.update_with_detections(detection_sv)
 
             for frame_detection in detection_with_tracks:
-                bbox = frame_detection[0].tolist()
-                cls_id = frame_detection[3]
+                bbox     = frame_detection[0].tolist()
+                cls_id   = frame_detection[3]
                 track_id = frame_detection[4]
 
-                if cls_id == cls_names_inv.get('player'):
+                # COCO: person = 0
+                if cls_id == cls_names_inv.get('person'):
                     tracks['players'][frame_num][track_id] = {'bbox': bbox}
-                if cls_id == cls_names_inv.get('referee'):
-                    tracks['referees'][frame_num][track_id] = {'bbox': bbox}
 
             for frame_detection in detection_sv:
-                bbox = frame_detection[0].tolist()
+                bbox   = frame_detection[0].tolist()
                 cls_id = frame_detection[3]
-                if cls_id == cls_names_inv.get('ball'):
+                # COCO: sports ball = 32
+                if cls_id == cls_names_inv.get('sports ball'):
                     tracks['ball'][frame_num][1] = {'bbox': bbox}
 
         if stub_path:
@@ -93,9 +87,9 @@ class Tracker:
         return tracks
 
     def draw_ellipse(self, frame, bbox, color, track_id=None):
-        y2 = int(bbox[3])
+        y2       = int(bbox[3])
         x_center, _ = get_center_of_bbox(bbox)
-        width = get_bbox_width(bbox)
+        width    = get_bbox_width(bbox)
 
         cv2.ellipse(
             frame,
@@ -111,8 +105,8 @@ class Tracker:
 
         if track_id is not None:
             rect_width, rect_height = 40, 20
-            x1_rect = x_center - rect_width // 2
-            x2_rect = x_center + rect_width // 2
+            x1_rect = x_center - rect_width  // 2
+            x2_rect = x_center + rect_width  // 2
             y1_rect = y2 - rect_height // 2 + 15
             y2_rect = y2 + rect_height // 2 + 15
 
@@ -147,7 +141,7 @@ class Tracker:
         team_ball_control_till_frame = team_ball_control[:frame_num + 1]
         team_1 = (team_ball_control_till_frame == 1).sum()
         team_2 = (team_ball_control_till_frame == 2).sum()
-        total = team_1 + team_2 if (team_1 + team_2) > 0 else 1
+        total  = team_1 + team_2 if (team_1 + team_2) > 0 else 1
 
         cv2.putText(frame, f'Team 1 Ball Control: {team_1 / total * 100:.2f}%',
                     (1400, 900), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
@@ -161,28 +155,23 @@ class Tracker:
         for frame_num, frame in enumerate(video_frames):
             frame = frame.copy()
 
-            player_dict = tracks['players'][frame_num]
-            ball_dict = tracks['ball'][frame_num]
-            referee_dict = tracks['referees'][frame_num]
+            player_dict   = tracks['players'][frame_num]
+            ball_dict     = tracks['ball'][frame_num]
+            referee_dict  = tracks['referees'][frame_num]
 
-            # Draw players
             for track_id, player in player_dict.items():
                 color = player.get('team_color', (0, 0, 255))
                 frame = self.draw_ellipse(frame, player['bbox'], color, track_id)
                 if player.get('has_ball', False):
                     frame = self.draw_triangle(frame, player['bbox'], (0, 255, 0))
 
-            # Draw referees
             for _, referee in referee_dict.items():
                 frame = self.draw_ellipse(frame, referee['bbox'], (0, 255, 255))
 
-            # Draw ball
             for _, ball in ball_dict.items():
                 frame = self.draw_triangle(frame, ball['bbox'], (0, 255, 0))
 
-            # Draw possession scoreboard
             frame = self.draw_team_ball_control(frame, frame_num, team_ball_control)
-
             output_video_frames.append(frame)
 
         return output_video_frames

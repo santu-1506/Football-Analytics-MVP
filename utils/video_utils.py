@@ -25,3 +25,7 @@ def save_video(output_video_frames, output_video_path):
     for frame in output_video_frames:
         out.write(frame)
     out.release()
+
+# Function Does read_video(path) Reads every frame into a list — entire video lives in memory as numpy arrays save_video(frames, path) Writes annotated frames back out as an .avi file at 24fps
+
+# One thing to know — read_video loads the full video into RAM. For a short match clip (30–60 seconds) this is totally fine. For a full 90 minute match, you'd need to process it in chunks — but for this MVP, don't worry about it.

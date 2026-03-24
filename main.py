@@ -67,8 +67,8 @@ def main():
     )
 
     # ── 7. Save output ─────────────────────────────────────────────────────────
-    save_video(output_video_frames, 'output_videos/output.avi')
-    print("✅ Done! Output saved to output_videos/output.avi")
+    save_video(output_video_frames, 'output_videos/output.mp4')
+    print("✅ Done! Output saved to output_videos/output.mp4")
 
 
 if __name__ == '__main__':

@@ -1,0 +1,16 @@
+# Core ML & Detection
+ultralytics==8.3.0         # YOLO11 model — player, ball, referee detection
+
+# Computer Vision
+opencv-python==4.10.0.84   # Video I/O, frame processing, drawing annotations
+
+# Data & Math
+numpy==1.26.4              # Array ops, coordinate math
+pandas==2.2.2              # Ball position interpolation (fillna, interpolate)
+
+# Team Clustering
+scikit-learn==1.5.1        # KMeans — jersey color → team label
+
+# Progress & Debug
+supervision==0.22.0        # ByteTrack ID persistence, detection utilities
+tqdm==4.66.4               # Progress bars for long video processing

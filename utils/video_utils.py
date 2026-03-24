@@ -14,7 +14,7 @@ def read_video(video_path):
     return frames
 
 def save_video(output_video_frames, output_video_path):
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(
         output_video_path,
         fourcc,

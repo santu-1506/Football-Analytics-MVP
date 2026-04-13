@@ -221,7 +221,6 @@ pip3 install ultralytics
 
 - [Ultralytics YOLO11](https://github.com/ultralytics/ultralytics) — detection backbone
 - [Roboflow Supervision](https://github.com/roboflow/supervision) — ByteTrack implementation
-- Original project inspiration: [Somnath0707/FootBall-Analytics-MVP](https://github.com/Somnath0707/FootBall-Analytics-MVP)
 
 ---
 
